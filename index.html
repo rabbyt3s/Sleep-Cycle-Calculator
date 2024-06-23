@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Wake-Up Time Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background-color: #FAEBD7;
+            --text-color: #685d52;
+            --secondary-color: #928779;
+            --highlight-color: #c15c48;
+            --button-hover-color: #b54c3d;
+            --option-background: #b0a18d;
+            --input-border-color: #928779;
+        }
+
+        [data-theme="dark"] {
+            --background-color: #2E2E2E;
+            --text-color: #E0E0E0;
+            --secondary-color: #4E4E4E;
+            --highlight-color: #FF5733;
+            --button-hover-color: #CC4733;
+            --option-background: #5E5E5E;
+            --input-border-color: #6E6E6E;
+        }
+
+        html {
+            font-size: 5vw;
+            overflow-x: hidden;
+        }
+        @media screen and (min-width: 700px) {
+            html {
+                font-size: 6vw;
+            }
+        }
+        @media screen and (max-width: 400px) {
+            html {
+                font-size: 4.5vw;
+            }
+        }
+        body {
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--background-color);
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 0.5rem;
+            overflow-y: auto;
+            margin: 0;
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode-toggle {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--highlight-color);
+        }
+        .clock-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .clock {
+            position: relative;
+            width: 10rem;
+            height: 10rem;
+            border-radius: 50%;
+            background-color: var(--background-color);
+            box-shadow: 1.5rem 3rem 2rem rgba(146, 135, 121, 0.15), 0.5rem 1rem 1.5rem rgba(104, 93, 82, 0.8), inset 0 0 0.4rem rgba(104, 93, 82, 0.2), inset -0.2rem -0.1rem 0.4rem rgba(146, 135, 121, 0.4), 2rem 6rem 7rem rgba(146, 135, 121, 0.3);
+            margin-bottom: 0.5rem;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        [data-theme="dark"] .clock {
+            box-shadow: 1.5rem 3rem 2rem rgba(78, 78, 78, 0.15), 0.5rem 1rem 1.5rem rgba(78, 78, 78, 0.8), inset 0 0 0.4rem rgba(78, 78, 78, 0.2), inset -0.2rem -0.1rem 0.4rem rgba(78, 78, 78, 0.4), 2rem 6rem 7rem rgba(78, 78, 78, 0.3);
+        }
+        .face {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 9rem;
+            height: 9rem;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--background-color);
+            box-shadow: 0 0 0.4rem rgba(104, 93, 82, 0.5), inset 0.2rem 0.1rem 0.4rem rgba(146, 135, 121, 0.4), inset 0.5rem 1rem 2rem rgba(146, 135, 121, 0.2), inset 0.25rem 0.5rem 1rem rgba(104, 93, 82, 0.4);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .hand {
+            position: absolute;
+            left: calc(50% - 0.4rem);
+            width: 0.8rem;
+            border-radius: 50%;
+            background: var(--text-color);
+            filter: blur(0.4px);
+        }
+        @keyframes big-tick {
+            0% {
+                transform: rotate(0deg);
+                box-shadow: inset -0.2rem -0.2rem 0.2rem rgba(75, 68, 60, 0.5), inset 0.2rem 0.2rem 0.2rem rgba(157, 144, 131, 1), 0.3rem 0.5rem 0.5rem rgba(104, 93, 82, 0.4);
+            }
+            25% {
+                transform: rotate(90deg);
+                box-shadow: inset -0.2rem 0.2rem 0.2rem rgba(75, 68, 60, 0.5), inset 0.2rem -0.2rem 0.2rem rgba(157, 144, 131, 1), 0.3rem -0.5rem 0.5rem rgba(104, 93, 82, 0.4);
+            }
+            50% {
+                transform: rotate(180deg);
+                box-shadow: inset 0.2rem 0.2rem 0.2rem rgba(75, 68, 60, 0.5), inset -0.2rem -0.2rem 0.2rem rgba(157, 144, 131, 1), -0.3rem -0.5rem 0.5rem rgba(104, 93, 82, 0.4);
+            }
+            75% {
+                transform: rotate(270deg);
+                box-shadow: inset 0.2rem -0.2rem 0.2rem rgba(75, 68, 60, 0.5), inset -0.2rem 0.2rem 0.2rem rgba(157, 144, 131, 1), -0.3rem 0.5rem 0.5rem rgba(104, 93, 82, 0.4);
+            }
+            100% {
+                transform: rotate(360deg);
+                box-shadow: inset -0.2rem -0.2rem 0.2rem rgba(75, 68, 60, 0.5), inset 0.2rem 0.2rem 0.2rem rgba(157, 144, 131, 1), 0.3rem 0.5rem 0.5rem rgba(104, 93, 82, 0.4);
+            }
+        }
+        .hour {
+            height: 4rem;
+            transform-origin: 50% 3rem;
+            top: calc(50% - 3rem);  
+            animation: big-tick 43200s infinite linear;
+            animation-delay: -36873s;
+        }
+        .minute {
+            height: 5rem;
+            transform-origin: 50% 4rem;
+            top: calc(50% - 4rem);
+            animation: big-tick 3600s infinite linear;
+            animation-delay: -873s;
+        }
+        .cover {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate3d(-50%, -50%, 0);
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background: var(--text-color);
+            box-shadow: inset 0.4rem 0.8rem 1rem rgba(146, 131, 117, 0.6), inset -0.4rem -0.8rem 1rem rgba(75, 68, 60, ```html
+            0.6), 0.2rem 0.2rem 0.2rem rgba(75, 68, 60, 0.8);
+            filter: blur(0.4px);
+        }
+        .cover:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            transform: rotate(-25deg) scaleX(0.6);
+            box-shadow: -0.5rem 1rem 2.5rem rgba(104, 93, 82, 0.8);
+        }
+        .second-bulb {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate3d(-50%, -50%, 0);
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background: var(--highlight-color);
+            box-shadow: 0.1rem 0.15rem 0.2rem rgba(70, 62, 55, 1);
+            filter: blur(0.6px);
+        }
+        @keyframes little-tick {
+            0% {
+                transform: rotate(0deg);
+                box-shadow: 0.5rem 1rem 0.7rem rgba(104, 93, 82, 0.4);
+            }
+            25% {
+                transform: rotate(90deg);
+                box-shadow: 1rem -0.5rem 0.7rem rgba(104, 93, 82, 0.4);
+            }
+            50% {
+                transform: rotate(180deg);
+                box-shadow: -0.5rem -1rem 0.7rem rgba(104, 93, 82, 0.4);
+            }
+            75% {
+                transform: rotate(270deg);
+                box-shadow: -1rem 0.5rem 0.7rem rgba(104, 93, 82, 0.4);
+            }
+            100% {
+                transform: rotate(360deg);
+                box-shadow: 0.5rem 1rem 0.7rem rgba(104, 93, 82, 0.4);
+            }
+        }
+        .second {
+            height: 4rem;
+            transform-origin: 0.15rem 3.5rem;
+            top: calc(50% - 3.5rem);
+            transform: rotate(90deg);
+            background: var(--highlight-color);
+            width: 0.15rem;
+            left: calc(50% - 0.075rem);
+            border-radius: 0.2rem;
+            box-shadow: 1rem -0.5rem 0.7rem rgba(104, 93, 82, 0.4);
+            animation: little-tick 60s infinite steps(15);
+            animation-delay: -33s;
+        }
+        .container {
+            width: 90%;
+            max-width: 22rem;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .input-label {
+            font-size: 2rem; 
+            color: var(--text-color);
+            text-align: center;
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 700;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1.25rem;
+            border: 1px solid var(--input-border-color);
+            border-radius: 0.5rem;
+            margin-bottom: 0.25rem;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            text-align: center;
+            font-weight: 500;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .options {
+            background-color: var(--secondary-color);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            color: white;
+            margin-bottom: 0.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s;
+            display: none; 
+        }
+        .option-item {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: var(--option-background);
+            margin: 0.25rem 0;
+            border-radius: 0.5rem;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .button {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1.25rem;
+            background-color: var(--highlight-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: var(--button-hover-color);
+        }
+        .info-section {
+            width: 90%;
+            max-width: 22rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        .info-title {
+            font-size: 1.5rem;
+            color: var(--highlight-color);
+            margin-bottom: 1rem;
+        }
+        .info-item {
+            margin-bottom: 1rem;
+        }
+        .info-icon {
+            color: var(--highlight-color);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .info-content {
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <i class="fas fa-moon dark-mode-toggle" onclick="toggleDarkMode()"></i>
+    <div class="clock-container">
+        <div class="clock">
+            <div class="face">
+                <div class="hour hand"></div>
+                <div class="minute hand"></div>
+                <div class="cover"></div>
+                <div class="second-bulb"></div>
+                <div class="second hand"></div>
+            </div>
+        </div>
+        <label class="input-label" for="current-time">Current Time</label>
+        <input id="current-time" type="time" class="input-field">
+        <label class="input-label" for="num-options">Number of Options</label>
+        <input id="num-options" type="number" class="input-field" min="1" max="6" value="4">
+    </div>
+    <div class="container">
+        <div class="options" id="options-container">
+        </div>
+        <button class="button" onclick="calculateWakeUpTime()">Calculate</button>
+    </div>
+    <div class="info-section">
+        <div class="info-title">About This App</div>
+        <div class="info-item">
+            <i class="fas fa-info-circle info-icon"></i>
+            <div class="info-content">
+                This app helps you calculate the optimal wake-up times based on sleep cycles. Waking up at the right time can help you feel more refreshed and energized.
+            </div>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-bed info-icon"></i>
+            <div class="info-content">
+                Enter your current time to find the best times to wake up.
+            </div>
+        </div>
+        <div class="info-item">
+            <i class="fas fa-clock info-icon"></i>
+            <div class="info-content">
+                Use the calculated options to set your alarm for a more restful sleep.
+            </div>
+        </div>
+    </div>
+    <script>
+        function calculateWakeUpTime() {
+            const currentTime = document.getElementById('current-time').value;
+            const numOptions = parseInt(document.getElementById('num-options').value);
+            if (!currentTime || numOptions < 1 || numOptions > 6) {
+                alert('Please enter the current time and choose a valid number of options (1-6)');
+                return;
+            }
+            
+            const [hours, minutes] = currentTime.split(':').map(Number);
+            const wakeUpTimes = [];
+            const cycleMinutes = 90;
+            
+            for (let i = 1; i <= numOptions; i++) {
+                const totalMinutes = (hours * 60 + minutes + i * cycleMinutes) % 1440;
+                const wakeUpHour = Math.floor(totalMinutes / 60);
+                const wakeUpMinute = totalMinutes % 60;
+                wakeUpTimes.push(`${String(wakeUpHour).padStart(2, '0')}:${String(wakeUpMinute).padStart(2, '0')}`);
+            }
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = ''; 
+
+            for (let i = 0; i < numOptions; i++) {
+                const optionItem = document.createElement('div');
+                optionItem.className = 'option-item';
+                optionItem.innerHTML = `Wake Up Time ${i + 1}: <span>${wakeUpTimes[i]}</span>`;
+                optionsContainer.appendChild(optionItem);
+            }
+
+            optionsContainer.style.display = 'flex';
+        }
+
+        function toggleDarkMode() {
+            if (document.documentElement.getAttribute('data-theme') === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        }
+    </script>
+</body>
+</html>
